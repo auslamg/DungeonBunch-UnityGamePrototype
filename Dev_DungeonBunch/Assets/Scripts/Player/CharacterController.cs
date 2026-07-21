@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
-public class BasicCharacterController : MonoBehaviour
+public class CharacterController : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float maxVelocity = 8f;
