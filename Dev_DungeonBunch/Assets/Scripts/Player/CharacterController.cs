@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -32,6 +33,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private Rigidbody rb;
     [SerializeField] private CapsuleCollider capsuleCollider;
     [SerializeField] private GroundCheck groundCheck;
+    [SerializeField] private Transform orientation;
 
     [Header("Debug UI")]
     [SerializeField] private TMP_Text t1;
@@ -39,6 +41,17 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private TMP_Text t3;
 
     private Vector3 movementInput;
+    private Vector3 LocalizedInput
+    {
+        get
+        {
+            var vector = (orientation.forward * movementInput.z + orientation.right * movementInput.x).normalized;
+            vector.y = 0;
+            vector.Normalize();
+            return vector;
+        }
+    }
+
     private bool jumpPressed;
 
     void OnValidate()
@@ -46,6 +59,9 @@ public class CharacterController : MonoBehaviour
         TryGetComponent(out rb);
         TryGetComponent(out capsuleCollider);
         TryGetComponent(out groundCheck);
+
+        orientation =
+            orientation != null ? orientation : GetComponentInChildren<CameraController>().gameObject.transform;
 
         baseLinearDamping = rb.linearDamping;
     }
@@ -71,11 +87,13 @@ public class CharacterController : MonoBehaviour
 
     void FixedUpdate()
     {
-        //DEBUG
+        // DEBUG
         maxY = Mathf.Max(maxY, transform.position.y);
 
+        // GroundCheck fetch
         isGrounded = groundCheck.isGrounded(out groundCheckHitInfo);
 
+        // Handle friction
         if (movementInput.magnitude != 0f || !isGrounded || jumpDamping)
         {
             rb.linearDamping = 0;
@@ -85,17 +103,17 @@ public class CharacterController : MonoBehaviour
             rb.linearDamping = baseLinearDamping;
         }
 
+        // Apply forces
         rb.AddForce(
-            movementInput * accelerationMultiplier * Time.fixedDeltaTime,
+            LocalizedInput * accelerationMultiplier * Time.fixedDeltaTime,
             ForceMode.VelocityChange
         );
-
+        HandleJump();
 
         // Clamp velocity
         var clampedFlatVector = Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity);
         rb.linearVelocity = new(clampedFlatVector.x, rb.linearVelocity.y, clampedFlatVector.z);
 
-        HandleJump();
         UpdateUI();
     }
 
