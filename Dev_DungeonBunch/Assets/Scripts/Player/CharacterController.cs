@@ -45,7 +45,7 @@ public class CharacterController : MonoBehaviour
     {
         get
         {
-            var vector = (orientation.forward * movementInput.z + orientation.right * movementInput.x).normalized;
+            var vector = orientation.forward * movementInput.z + orientation.right * movementInput.x;
             vector.y = 0;
             vector.Normalize();
             return vector;

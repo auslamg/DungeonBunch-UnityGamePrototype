@@ -217,6 +217,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 229175570}
+  - component: {fileID: 229175571}
   m_Layer: 10
   m_Name: CamHolder
   m_TagString: Untagged
@@ -239,6 +240,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1949124511}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &229175571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229175569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4342eb41f341084e8d8127ac24a5c20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  mouseX: 0
+  mouseY: 0
+  maxYAngle: 89
+  globalSensitivity: 1
+  sensitivityX: 100
+  sensitivityY: 100
+  flipY: 0
+  rotationX: 0
+  rotationY: 0
+  clampXValue: 0
+  clampYValue: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1691,8 +1715,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1949124511}
   - {fileID: 1933083604}
+  - {fileID: 1949124511}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1783158577
@@ -1707,6 +1731,7 @@ GameObject:
   - component: {fileID: 1783158581}
   - component: {fileID: 1783158580}
   - component: {fileID: 1783158579}
+  - component: {fileID: 1783158582}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -1736,7 +1761,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1783158577}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 68605beb71e28bd4681eb8c564f7c1e0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1807,6 +1832,33 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1783158577}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!54 &1783158582
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783158577}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1895686182
 GameObject:
   m_ObjectHideFlags: 0
@@ -2110,14 +2162,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LinkedTransform
   parent: {fileID: 229175570}
-  usePhysics: 1
+  usePhysics: 0
   copyWorldPosition: 1
   copyWorldPositionAxes:
     x: 1
     y: 1
     z: 1
-  copyWorldRotation: 1
-  copyWorldRotationAxes:
+  copyLocalRotation: 1
+  copyLocalRotationAxes:
     x: 1
     y: 1
     z: 1
@@ -2205,6 +2257,7 @@ MonoBehaviour:
   rb: {fileID: 1949124514}
   capsuleCollider: {fileID: 1949124508}
   groundCheck: {fileID: 1949124515}
+  orientation: {fileID: 229175570}
   t1: {fileID: 1323776686}
   t2: {fileID: 839880183}
   t3: {fileID: 1895686185}

@@ -10,15 +10,17 @@ public class CameraController : MonoBehaviour
     [SerializeField] float mouseX;
     [SerializeField] float mouseY;
 
+    [Header("Clamping")]
+    [Range(70, 90)][SerializeField] float maxYAngle = 89;
+
     [Header("Sensitivity stats")]
-    [Range(.5f, 4)][SerializeField] float globalSens = 1;
-    [Range(50f, 400)][SerializeField] float sensX = 100;
-    [Range(50f, 400)][SerializeField] float sensY = 100;
+    [Range(.5f, 4)][SerializeField] float globalSensitivity = 1;
+    [Range(50f, 400)][SerializeField] float sensitivityX = 100;
+    [Range(50f, 400)][SerializeField] float sensitivityY = 100;
 
     [Header("Misc")]
     [SerializeField] const float hardcodeSensMult = 3;
     [SerializeField] bool flipY = false;
-
 
     [Header("Debug")]
     [SerializeField] float rotationX = 0f;
@@ -40,8 +42,8 @@ public class CameraController : MonoBehaviour
     private void Update()
     {
         //Read input and process
-        mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX * globalSens * hardcodeSensMult;
-        mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY * globalSens * hardcodeSensMult;
+        mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensitivityX * globalSensitivity * hardcodeSensMult;
+        mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensitivityY * globalSensitivity * hardcodeSensMult;
 
         //Clamp input if necessary
         ClampMouseInput(ref mouseX, ref mouseY);
@@ -51,7 +53,7 @@ public class CameraController : MonoBehaviour
         rotationX += flipY ? mouseY : -mouseY;
 
         //Clamp Pitch (Y axis)
-        rotationX = Mathf.Clamp(rotationX, -90, 90);
+        rotationX = Mathf.Clamp(rotationX, -maxYAngle, maxYAngle);
 
         //Apply rotation
         transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
