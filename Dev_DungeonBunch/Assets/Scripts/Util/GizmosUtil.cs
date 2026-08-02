@@ -1,9 +1,10 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
-public class GizmosUtil
+public static class GizmosUtil
 {
-    public static void DrawCapsule(CapsuleCollider capsuleCollider)
+    public static void DrawWireCapsule(CapsuleCollider capsuleCollider)
     {
         float coreHeight = capsuleCollider.bounds.extents.y - capsuleCollider.radius;
 
@@ -31,5 +32,14 @@ public class GizmosUtil
         Gizmos.DrawLine(wire2, wire2 - coreHeight * 2 * Vector3.up);
         Gizmos.DrawLine(wire3, wire3 - coreHeight * 2 * Vector3.up);
         Gizmos.DrawLine(wire4, wire4 - coreHeight * 2 * Vector3.up);
+    }
+
+    public static void WithGizmoMatrix(Matrix4x4 matrix, Action drawAction)
+    {
+        Matrix4x4 previous = Gizmos.matrix;
+
+        Gizmos.matrix = matrix;
+        drawAction?.Invoke();
+        Gizmos.matrix = previous;
     }
 }
