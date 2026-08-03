@@ -9,7 +9,7 @@ enum AttackState
 {
     Ready,
     Windup,
-    Hurt,
+    Release,
     Cooldown
 }
 
@@ -17,28 +17,42 @@ public class MeleeAttack : MonoBehaviour, IRunnable
 {
     [Header("Input")]
     [SerializeField] public bool attackInput = false;
-    [SerializeField] bool debugAttackInput = false;
+    bool debugAttackInput => Input.GetKeyDown(debugKey);
 
     [Header("State")]
     [SerializeField] AttackState state = AttackState.Ready;
-    [SerializeField] bool isStaggered = false;
     [SerializeField] HashSet<GameObject> hitTargets = new();
     [SerializeField] private CountdownTimer attackCooldown = new(1);
     [SerializeField] private CountdownTimer windupDuration = new(0.2f);
-    [SerializeField] private CountdownTimer hurtDuration = new(0.4f);
+    [SerializeField] private CountdownTimer releaseDuration = new(0.4f);
     [SerializeField] private CountdownTimer staggerTime = new(0.25f);
+    [SerializeField] bool isStaggered = false;
+
+    [Header("Attack values")]
+    [SerializeField] uint damage;
+    [SerializeField] float knockback;
+    [SerializeField] List<DamageTypeSO> damageTypes;
+    Attack Attack => new
+    (
+        source: gameObject,
+        damage: this.damage,
+        direction: this.transform.forward,
+        knockback: knockback,
+        damageTypes: damageTypes.ToHashSet()
+    );
 
     [Header("References")]
     [SerializeField] private BoxCollider hurtBox;
 
-    [Header("Debug UI")]
+    [Header("Debug Keys")]
     [SerializeField] private KeyCode debugKey;
 
     [Header("Debug UI")]
     [SerializeField] Slider cooldownSlider;
     [SerializeField] private TMP_Text t1;
-    [SerializeField] private TMP_Text t2;
-    [SerializeField] private TMP_Text t3;
+    [SerializeField] private Image crosshair;
+    [SerializeField] private Sprite atkCrosshair;
+    [SerializeField] private Sprite baseCrosshair;
 
     void Awake()
     {
@@ -48,29 +62,29 @@ public class MeleeAttack : MonoBehaviour, IRunnable
     void OnValidate()
     {
         TryGetComponent(out hurtBox);
+        baseCrosshair = crosshair != null ? crosshair.sprite : null;
+
         UpdateUI();
-    }    
+    }
 
     public void Run()
     {
-        debugAttackInput = Input.GetKeyDown(debugKey);
-
         if (state == AttackState.Windup)
         {
-            // If the windup duration is over, end windup and start hurt phase
+            // If the windup duration is over, end windup and start release phase
             if (windupDuration.Tick(Time.deltaTime))
             {
-                state = AttackState.Hurt;
+                state = AttackState.Release;
                 windupDuration.Reset();
             }
         }
-        if (state == AttackState.Hurt)
+        if (state == AttackState.Release)
         {
-            // If the attack duration is over, end attack and start cooldown
-            if (hurtDuration.Tick(Time.deltaTime))
+            // If the release duration is over, end attack and start cooldown
+            if (releaseDuration.Tick(Time.deltaTime))
             {
                 state = AttackState.Cooldown;
-                hurtDuration.Reset();
+                releaseDuration.Reset();
             }
         }
         if (state == AttackState.Cooldown)
@@ -105,37 +119,45 @@ public class MeleeAttack : MonoBehaviour, IRunnable
     {
         hitTargets.Clear();
         windupDuration.Reset();
-        hurtDuration.Reset();
+        releaseDuration.Reset();
         state = AttackState.Windup;
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (state == AttackState.Hurt)
+        if (state == AttackState.Release)
         {
             if (other.gameObject.layer != gameObject.layer &&
                 hitTargets.Add(other.gameObject))
             {
                 Debug.Log(other.name + " - " + other.transform.position);
 
-                //TODO: Implement
-                // Damage 
-                /* if (other.TryGetComponent(out HealthSystem hs))
+                // General
+                if (other.TryGetComponent(out AttackReceiver receiver))
                 {
-                    hs.Damage(40); //TODO: Parametrize
+                    receiver.TakeAttack(Attack);
+                }
+                /* else
+                {
+                    //TODO: Implement
+                    // Damage 
+                    if (other.TryGetComponent(out HealthSystem hs))
+                    {
+                        hs.Damage(40); //TODO: Parametrize
+                    }
+
+                    // Knockback
+                    if (other.TryGetComponent(out Rigidbody rb))
+                    {
+                        rb.AddForce((Vector3.up + 2 * transform.forward).normalized * 10f, ForceMode.VelocityChange); //TODO: Parametrize
+                    }
+
+                    // Stagger
+                    if (other.TryGetComponent(out MeleeAttack melee))
+                    {
+                        melee.Stagger(0.5f); //TODO: Parametrize
+                    }
                 } */
-
-                // Knockback
-                if (other.TryGetComponent(out Rigidbody rb))
-                {
-                    rb.AddForce((Vector3.up + 2 * transform.forward).normalized * 10f, ForceMode.VelocityChange); //TODO: Parametrize
-                }
-
-                // Stagger
-                if (other.TryGetComponent(out MeleeAttack melee))
-                {
-                    melee.Stagger(0.5f); //TODO: Parametrize
-                }
             }
         }
     }
@@ -159,14 +181,11 @@ public class MeleeAttack : MonoBehaviour, IRunnable
             t1.text = $"{state}";
             t1.color = AttackStateColor();
         }
-        if (t2)
-        {
-        }
-        if (t3)
-        {
-        }
 
-
+        if (crosshair)
+        {
+            crosshair.sprite = state == AttackState.Release ? atkCrosshair : baseCrosshair;
+        }
     }
 
     Color AttackStateColor()
@@ -177,10 +196,10 @@ public class MeleeAttack : MonoBehaviour, IRunnable
                 return Color.yellowGreen;
             case AttackState.Windup:
                 return Color.orange;
-            case AttackState.Hurt:
+            case AttackState.Release:
                 return Color.red;
             case AttackState.Cooldown:
-                return new Color(1,1,.6f);
+                return new Color(1, 1, .6f);
             default:
                 return Color.white;
         }

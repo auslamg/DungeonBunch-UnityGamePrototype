@@ -4,15 +4,29 @@ public class PlayerInputManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private MeleeAttack meleeAttack;
+    [SerializeField] private MeleeBlock meleeBlock;
 
-    private void OnValidate() {
+    //TODO: Restructure
+    private void OnValidate()
+    {
         meleeAttack =
             meleeAttack != null ? meleeAttack : GetComponentInChildren<MeleeAttack>();
+        meleeBlock =
+            meleeBlock != null ? meleeBlock : GetComponentInChildren<MeleeBlock>();
     }
 
     void Update()
     {
-        meleeAttack.attackInput = Input.GetMouseButtonDown(0);
-        meleeAttack.Run();
+        if (true)
+        {
+            meleeAttack.attackInput = Input.GetMouseButtonDown(0);
+            meleeAttack.Run();
+        }
+
+        if (meleeBlock)
+        {
+            meleeBlock.blockInput = Input.GetMouseButton(0);
+            meleeBlock.Run();
+        }
     }
 }

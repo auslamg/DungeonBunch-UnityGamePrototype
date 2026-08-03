@@ -640,8 +640,8 @@ MonoBehaviour:
       sizeOverridden: 0
     - dockPosition: 1
       containerId: overlay-toolbar__top
-      displayed: 0
-      id: Editor Utility/Quality
+      displayed: 1
+      id: Editor Controls/Layout
       index: 1
       contents: '{"m_Layout":4,"m_Collapsed":false,"m_Folded":false,"m_Floating":false,"m_FloatingSnapOffset":{"x":0.0,"y":0.0},"m_SnapOffsetDelta":{"x":0.0,"y":0.0},"m_FloatingSnapCorner":0,"m_Size":{"x":0.0,"y":0.0},"m_SizeOverridden":false}'
       floating: 0
@@ -654,8 +654,8 @@ MonoBehaviour:
       sizeOverridden: 0
     - dockPosition: 1
       containerId: overlay-toolbar__top
-      displayed: 1
-      id: Editor Controls/Layout
+      displayed: 0
+      id: Editor Utility/Quality
       index: 2
       contents: '{"m_Layout":4,"m_Collapsed":false,"m_Folded":false,"m_Floating":false,"m_FloatingSnapOffset":{"x":0.0,"y":0.0},"m_SnapOffsetDelta":{"x":0.0,"y":0.0},"m_FloatingSnapCorner":0,"m_Size":{"x":0.0,"y":0.0},"m_SizeOverridden":false}'
       floating: 0
@@ -741,20 +741,6 @@ MonoBehaviour:
       displayed: 1
       id: Play Mode Controls
       index: 0
-      contents: '{"m_Layout":4,"m_Collapsed":false,"m_Folded":false,"m_Floating":false,"m_FloatingSnapOffset":{"x":-910.0,"y":-36.0},"m_SnapOffsetDelta":{"x":0.0,"y":0.0},"m_FloatingSnapCorner":3,"m_Size":{"x":0.0,"y":0.0},"m_SizeOverridden":false}'
-      floating: 0
-      collapsed: 0
-      snapOffset: {x: -910, y: -36}
-      snapOffsetDelta: {x: 0, y: 0}
-      snapCorner: 3
-      layout: 4
-      size: {x: 0, y: 0}
-      sizeOverridden: 0
-    - dockPosition: 1
-      containerId: overlay-toolbar__top
-      displayed: 0
-      id: Services/Environment
-      index: 8
       contents: '{"m_Layout":4,"m_Collapsed":false,"m_Folded":false,"m_Floating":false,"m_FloatingSnapOffset":{"x":0.0,"y":0.0},"m_SnapOffsetDelta":{"x":0.0,"y":0.0},"m_FloatingSnapCorner":0,"m_Size":{"x":0.0,"y":0.0},"m_SizeOverridden":false}'
       floating: 0
       collapsed: 0
@@ -1395,7 +1381,7 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: -1, y: 1.5, z: 1.5}
+    m_Target: {x: -1.5910939, y: 0.722834, z: 1.3460213}
     speed: 2
     m_Value: {x: -1, y: 1.5, z: 1.5}
   m_RenderMode: 0
@@ -1443,11 +1429,11 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 1
   m_Rotation:
-    m_Target: {x: 0.2442504, y: -0.19476828, z: 0.0501536, w: 0.9486478}
+    m_Target: {x: 0.007939501, y: 0.9554313, z: -0.29398027, w: 0.025803119}
     speed: 2
     m_Value: {x: -0.2442504, y: 0.1947683, z: -0.0501536, w: -0.94864786}
   m_Size:
-    m_Target: 4.4076524
+    m_Target: 5.723297
     speed: 2
     m_Value: 4.4076524
   m_Ortho:
@@ -2116,7 +2102,7 @@ MonoBehaviour:
       m_Data: 47200
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2149,7 +2135,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2284,7 +2270,7 @@ MonoBehaviour:
       m_Data: 47200
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2317,7 +2303,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2452,7 +2438,7 @@ MonoBehaviour:
       m_Data: 61546
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2485,7 +2471,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2619,7 +2605,7 @@ MonoBehaviour:
       m_Data: 50802
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2652,7 +2638,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2786,7 +2772,7 @@ MonoBehaviour:
       m_Data: 68888
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2819,7 +2805,7 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 47234
+    - m_Data: 47402
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

@@ -19,7 +19,7 @@ public struct CountdownTimer
     [HideInInspector] public readonly float Remaining => Time;
     [HideInInspector] public readonly float RemainingPercent => Time / Interval;
     [HideInInspector] public readonly float Progress => Interval - Time;
-    [HideInInspector] public readonly float ProgressPercent => Interval - Time / Interval;
+    [HideInInspector] public readonly float ProgressPercent => (Interval - Time) / Interval;
 
     /// <summary>
     /// Advances the countdown timer by the specified time delta and invokes the tick event when the timer completes.
