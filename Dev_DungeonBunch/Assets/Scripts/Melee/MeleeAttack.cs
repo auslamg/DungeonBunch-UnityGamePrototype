@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,13 +37,20 @@ public class MeleeAttack : MonoBehaviour, IRunnable
     (
         source: gameObject,
         damage: this.damage,
-        direction: this.transform.forward,
+        direction: orientation.transform.forward,
         knockback: knockback,
         damageTypes: damageTypes.ToHashSet()
     );
 
+    [Header("Physics queries")]
+    [SerializeField] LayerMask layerMask;
+    [SerializeField] Vector3 hitBoxHalfExtents = new Vector3(1.5f, 0.5f, 1.5f);
+    float hitBoxOffset => hitBoxHalfExtents.z;
+    Vector3 HitBoxCenter => orientation.position + orientation.forward * hitBoxOffset;
+
+
     [Header("References")]
-    [SerializeField] private BoxCollider hurtBox;
+    [SerializeField] private Transform orientation;
 
     [Header("Debug Keys")]
     [SerializeField] private KeyCode debugKey;
@@ -61,8 +69,10 @@ public class MeleeAttack : MonoBehaviour, IRunnable
 
     void OnValidate()
     {
-        TryGetComponent(out hurtBox);
-        baseCrosshair = crosshair != null ? crosshair.sprite : null;
+        orientation =
+            orientation != null ? orientation : GetComponentInChildren<CameraController>().gameObject.transform;
+        baseCrosshair =
+            crosshair != null ? crosshair.sprite : null;
 
         UpdateUI();
     }
@@ -80,6 +90,7 @@ public class MeleeAttack : MonoBehaviour, IRunnable
         }
         if (state == AttackState.Release)
         {
+            HitReg();
             // If the release duration is over, end attack and start cooldown
             if (releaseDuration.Tick(Time.deltaTime))
             {
@@ -115,19 +126,12 @@ public class MeleeAttack : MonoBehaviour, IRunnable
         UpdateUI();
     }
 
-    void StartAttack()
+    private void HitReg()
     {
-        hitTargets.Clear();
-        windupDuration.Reset();
-        releaseDuration.Reset();
-        state = AttackState.Windup;
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (state == AttackState.Release)
+        var colliders = Physics.OverlapBox(HitBoxCenter, hitBoxHalfExtents, orientation.rotation, layerMask);
+        foreach (var other in colliders)
         {
-            if (other.gameObject.layer != gameObject.layer &&
+            if (!other.transform.IsChildOf(this.transform) &&
                 hitTargets.Add(other.gameObject))
             {
                 Debug.Log(other.name + " - " + other.transform.position);
@@ -160,6 +164,14 @@ public class MeleeAttack : MonoBehaviour, IRunnable
                 } */
             }
         }
+    }
+
+    void StartAttack()
+    {
+        hitTargets.Clear();
+        windupDuration.Reset();
+        releaseDuration.Reset();
+        state = AttackState.Windup;
     }
 
     public void Stagger(float time)
@@ -209,9 +221,16 @@ public class MeleeAttack : MonoBehaviour, IRunnable
     {
         Gizmos.color = AttackStateColor();
 
-        GizmosUtil.WithGizmoMatrix(transform.localToWorldMatrix, () =>
+        // HitBox gizmo
+        
+        GizmosUtil.WithGizmoMatrix(
+            Matrix4x4.TRS(
+                HitBoxCenter,
+                orientation.rotation,
+                Vector3.one),
+                () =>
         {
-            Gizmos.DrawWireCube(hurtBox.center, hurtBox.size);
+            Gizmos.DrawWireCube(Vector3.zero, hitBoxHalfExtents * 2);
         });
     }
 }
