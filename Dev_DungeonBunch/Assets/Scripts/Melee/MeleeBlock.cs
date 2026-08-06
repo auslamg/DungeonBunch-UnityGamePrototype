@@ -191,10 +191,24 @@ public class MeleeBlock : MonoBehaviour, IRunnable, IStaggerable, IExclusiveHeld
     /// <returns><c>true</c> if the block was successful, <c>false</c> if it wasn't.</returns>
     public bool TryBlock(Attack attack)
     {
+        // IDEA: Setting the block immediately ready (with no cooldown) after successfully parrying (not blocking) would incentivize smart defense
         Vector3 reverseSightline = -orientation.position + attack.source.transform.position;
-        return
-            (state == BlockState.Parry || state == BlockState.Blocking) &&
-            Vector3.Angle(orientation.forward, reverseSightline) <= 75; // TODO: Parametrize angle
+
+        // Check if line of sight difference is within max angle
+        bool withinAngle = Vector3.Angle(orientation.forward, reverseSightline) <= 75; // TODO: Parametrize angle
+        if (!withinAngle)
+        {
+            return false;
+        }
+        else
+        {
+            if (state == BlockState.Parry)
+            {
+                // IDEA: add bonus
+            }
+
+            return state == BlockState.Parry || state == BlockState.Blocking;
+        }
     }
 
     public void Stagger()
