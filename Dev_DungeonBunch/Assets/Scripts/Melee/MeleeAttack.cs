@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,18 +13,29 @@ enum AttackState
     Cooldown
 }
 
-public class MeleeAttack : MonoBehaviour, IRunnable
+public class MeleeAttack : MonoBehaviour, IRunnable, IStaggerable, IExclusiveInstanceAction
 {
     [Header("Input")]
-    [SerializeField] public bool attackInput = false;
-    bool debugAttackInput => Input.GetKeyDown(debugKey);
+    [SerializeField] private KeyCode debugKey;
+    bool DebugAttackInput => Input.GetKeyDown(debugKey);
+
+    [Header("Action interface")]
+    private ActionManager actionManager;
+    public ActionManager ActionManager
+    {
+        get => actionManager;
+        set => actionManager = value;
+    }
+    ActionState IExclusiveAction.State => GetActionState();
+    public event EventHandler OnActionStart;
+    public event EventHandler OnActionEnd;
 
     [Header("State")]
-    [SerializeField] AttackState state = AttackState.Ready;
+    [SerializeField] AttackState state = AttackState.Ready; 
     [SerializeField] HashSet<GameObject> hitTargets = new();
     [SerializeField] private CountdownTimer attackCooldown = new(1);
     [SerializeField] private CountdownTimer windupDuration = new(0.2f);
-    [SerializeField] private CountdownTimer releaseDuration = new(0.4f);
+    [SerializeField] private CountdownTimer releaseDuration = new(0.1f);
     [SerializeField] private CountdownTimer staggerTime = new(0.25f);
     [SerializeField] bool isStaggered = false;
 
@@ -35,7 +45,8 @@ public class MeleeAttack : MonoBehaviour, IRunnable
     [SerializeField] List<DamageTypeSO> damageTypes;
     Attack Attack => new
     (
-        source: gameObject,
+        owner: actor,
+        source: orientation,
         damage: this.damage,
         direction: orientation.transform.forward,
         knockback: knockback,
@@ -50,17 +61,14 @@ public class MeleeAttack : MonoBehaviour, IRunnable
 
 
     [Header("References")]
+    [SerializeField] private GameObject actor;
     [SerializeField] private Transform orientation;
-
-    [Header("Debug Keys")]
-    [SerializeField] private KeyCode debugKey;
 
     [Header("Debug UI")]
     [SerializeField] Slider cooldownSlider;
     [SerializeField] private TMP_Text t1;
-    [SerializeField] private Image crosshair;
-    [SerializeField] private Sprite atkCrosshair;
-    [SerializeField] private Sprite baseCrosshair;
+    [SerializeField] private Sprite actionCrosshair;
+    public Sprite ActionCrosshair => actionCrosshair;
 
     void Awake()
     {
@@ -69,58 +77,98 @@ public class MeleeAttack : MonoBehaviour, IRunnable
 
     void OnValidate()
     {
-        orientation =
-            orientation != null ? orientation : GetComponentInChildren<CameraController>().gameObject.transform;
-        baseCrosshair =
-            crosshair != null ? crosshair.sprite : null;
+        if (GetComponentInParent<Actor>())
+        {
+            actor =
+            actor != null ?
+                actor :
+                GetComponentInParent<Actor>().gameObject;
+
+            orientation =
+                orientation != null ?
+                    orientation :
+                    GetComponentInParent<Actor>().GetComponentInChildren<CameraController>().transform; // TODO: Refactor to CharacterView
+        }
+
+        windupDuration.Reset();
+        releaseDuration.Reset();
+        attackCooldown.Reset();
 
         UpdateUI();
     }
 
-    public void Run()
+    public bool TryExecuteAction()
     {
-        if (state == AttackState.Windup)
+        // Input
+        if (state == AttackState.Ready &&
+            !isStaggered)
         {
-            // If the windup duration is over, end windup and start release phase
-            if (windupDuration.Tick(Time.deltaTime))
-            {
-                state = AttackState.Release;
-                windupDuration.Reset();
-            }
+            // Start attack
+            hitTargets.Clear();
+            state = AttackState.Windup;
+            OnActionStart?.Invoke(this, EventArgs.Empty);
+
+            return true;
         }
-        if (state == AttackState.Release)
+        else return false;
+    }
+
+    public void RunUpdate()
+    {
+        Tick(Time.deltaTime);
+    }
+
+    public void Tick(float deltaTime)
+    {
+        switch (state)
         {
-            HitReg();
-            // If the release duration is over, end attack and start cooldown
-            if (releaseDuration.Tick(Time.deltaTime))
-            {
-                state = AttackState.Cooldown;
-                releaseDuration.Reset();
-            }
-        }
-        if (state == AttackState.Cooldown)
-        {
-            // If the attack cooldown is over, set ready
-            if (attackCooldown.Tick(Time.deltaTime))
-            {
-                state = AttackState.Ready;
-            }
+            case AttackState.Ready:
+                // Input
+                if (DebugAttackInput &&
+                    !isStaggered)
+                {
+                    TryExecuteAction();
+                }
+                break;
+
+            case AttackState.Windup:
+                // If the windup duration is over, end windup and start release phase
+                if (windupDuration.Tick(deltaTime))
+                {
+                    state = AttackState.Release;
+                    windupDuration.Reset();
+                }
+                break;
+
+            case AttackState.Release:
+                // Actively hit targets
+                HitReg();
+                // If the release duration is over, end attack and start cooldown
+                if (releaseDuration.Tick(deltaTime))
+                {
+                    state = AttackState.Cooldown;
+                    releaseDuration.Reset();
+                    OnActionEnd?.Invoke(this, EventArgs.Empty);
+                }
+                break;
+
+            case AttackState.Cooldown:
+                // If the attack cooldown is over, set ready
+                if (attackCooldown.Tick(deltaTime))
+                {
+                    state = AttackState.Ready;
+                    attackCooldown.Reset();
+                }
+                break;
         }
 
         if (isStaggered)
         {
             // If the stagger duration is over, end stagger
-            if (staggerTime.Tick(Time.deltaTime))
+            if (staggerTime.Tick(deltaTime))
             {
                 isStaggered = false;
             }
-        }
-
-        // Input
-        if (state == AttackState.Ready && (attackInput || debugAttackInput))
-        {
-            StartAttack();
-            attackCooldown.Reset();
         }
 
         UpdateUI();
@@ -129,63 +177,56 @@ public class MeleeAttack : MonoBehaviour, IRunnable
     private void HitReg()
     {
         var colliders = Physics.OverlapBox(HitBoxCenter, hitBoxHalfExtents, orientation.rotation, layerMask);
+        var thisActor = GetComponentInParent<Actor>().gameObject;
         foreach (var other in colliders)
         {
-            if (!other.transform.IsChildOf(this.transform) &&
+            if (!other.transform.IsChildOf(thisActor.transform) &&
                 hitTargets.Add(other.gameObject))
             {
-                Debug.Log(other.name + " - " + other.transform.position);
+                /* Debug.Log($"[MeleeAttack] HitReg: {other.name} +  -  + {other.transform.position}"); */
 
                 // General
                 if (other.TryGetComponent(out AttackReceiver receiver))
                 {
                     receiver.TakeAttack(Attack);
                 }
-                /* else
-                {
-                    //TODO: Implement
-                    // Damage 
-                    if (other.TryGetComponent(out HealthSystem hs))
-                    {
-                        hs.Damage(40); //TODO: Parametrize
-                    }
-
-                    // Knockback
-                    if (other.TryGetComponent(out Rigidbody rb))
-                    {
-                        rb.AddForce((Vector3.up + 2 * transform.forward).normalized * 10f, ForceMode.VelocityChange); //TODO: Parametrize
-                    }
-
-                    // Stagger
-                    if (other.TryGetComponent(out MeleeAttack melee))
-                    {
-                        melee.Stagger(0.5f); //TODO: Parametrize
-                    }
-                } */
             }
         }
     }
 
-    void StartAttack()
-    {
-        hitTargets.Clear();
-        windupDuration.Reset();
-        releaseDuration.Reset();
-        state = AttackState.Windup;
-    }
-
-    public void Stagger(float time)
+    public void Stagger()
     {
         isStaggered = true;
-        staggerTime = new(time);
         staggerTime.Reset();
+    }
+
+    public ActionState GetActionState()
+    {
+        return state switch
+        {
+            AttackState.Ready => ActionState.Ready,
+            AttackState.Windup => ActionState.InProgress,
+            AttackState.Release => ActionState.Busy,
+            AttackState.Cooldown => ActionState.Cooldown,
+            _ => ActionState.Ready,
+        };
+    }
+
+    public void Interrupt()
+    {
+        windupDuration.Reset();
+        releaseDuration.Reset();
+        attackCooldown.Reset();
+        state = AttackState.Cooldown;
+        OnActionEnd?.Invoke(this,EventArgs.Empty);
     }
 
     private void UpdateUI()
     {
         if (cooldownSlider)
         {
-            cooldownSlider.value = attackCooldown.ProgressPercent;
+            cooldownSlider.value = state == AttackState.Cooldown ? attackCooldown.ProgressPercent : releaseDuration.RemainingPercent;
+            cooldownSlider.transform.GetChild(1).GetChild(0).GetComponent<Image>().color = AttackStateColor();
         }
 
         if (t1)
@@ -193,28 +234,18 @@ public class MeleeAttack : MonoBehaviour, IRunnable
             t1.text = $"{state}";
             t1.color = AttackStateColor();
         }
-
-        if (crosshair)
-        {
-            crosshair.sprite = state == AttackState.Release ? atkCrosshair : baseCrosshair;
-        }
     }
 
     Color AttackStateColor()
     {
-        switch (state)
+        return state switch
         {
-            case AttackState.Ready:
-                return Color.yellowGreen;
-            case AttackState.Windup:
-                return Color.orange;
-            case AttackState.Release:
-                return Color.red;
-            case AttackState.Cooldown:
-                return new Color(1, 1, .6f);
-            default:
-                return Color.white;
-        }
+            AttackState.Ready => Color.gold,
+            AttackState.Windup => Color.darkOrange,
+            AttackState.Release => Color.red,
+            AttackState.Cooldown => Color.lemonChiffon,
+            _ => Color.white,
+        };
     }
 
     void OnDrawGizmos()
@@ -222,7 +253,7 @@ public class MeleeAttack : MonoBehaviour, IRunnable
         Gizmos.color = AttackStateColor();
 
         // HitBox gizmo
-        
+
         GizmosUtil.WithGizmoMatrix(
             Matrix4x4.TRS(
                 HitBoxCenter,

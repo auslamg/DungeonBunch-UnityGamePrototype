@@ -58,15 +58,28 @@ public class CharacterController : MonoBehaviour
     {
         OnValidate();
     }
-    
+
     void OnValidate()
     {
-        TryGetComponent(out rb);
-        TryGetComponent(out capsuleCollider);
-        TryGetComponent(out groundCheck);
+        rb =
+            rb != null ?
+                rb :
+                GetComponentInParent<Actor>().GetComponentInChildren<Rigidbody>();
+
+        capsuleCollider =
+            capsuleCollider != null ?
+                capsuleCollider :
+                GetComponentInParent<Actor>().GetComponentInChildren<CapsuleCollider>();
+
+        groundCheck =
+            groundCheck != null ?
+                groundCheck :
+                GetComponentInParent<Actor>().GetComponentInChildren<GroundCheck>();
 
         orientation =
-            orientation != null ? orientation : GetComponentInChildren<CameraController>().gameObject.transform;
+            orientation != null ?
+                orientation :
+                GetComponentInParent<Actor>().GetComponentInChildren<CameraController>().transform; // TODO: Refactor to CharacterView
 
         baseLinearDamping = rb.linearDamping;
 
@@ -177,8 +190,8 @@ public class CharacterController : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.limeGreen;
-        Gizmos.DrawWireCube(transform.position, new(capsuleCollider.radius * 2, capsuleCollider.height, capsuleCollider.radius * 2));
+        /* Gizmos.color = Color.limeGreen;
+        Gizmos.DrawWireCube(transform.position, new(capsuleCollider.radius * 2, capsuleCollider.height, capsuleCollider.radius * 2)); */
 
         Gizmos.color = Color.white;
         GizmosUtil.DrawWireCapsule(capsuleCollider);

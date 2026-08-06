@@ -30,12 +30,12 @@ public class UpdateRunner : MonoBehaviour
         foreach (var tickable in tickables)
         {
             IRunnable t = (IRunnable)tickable;
-            t.Run();
+            t.RunUpdate();
         }
     }
 }
 
 public interface IRunnable
 {
-    public void Run();
+    public void RunUpdate();
 }

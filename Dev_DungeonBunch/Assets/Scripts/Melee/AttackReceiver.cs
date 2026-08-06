@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// Component for an <see cref="Actor"/> object that is meant to receive damage. Checks if the actor has a melee block and is currently blocking to negate damage.
+/// </summary>
 public class AttackReceiver : MonoBehaviour
 {
     [Header("Overrides")]
@@ -10,22 +14,67 @@ public class AttackReceiver : MonoBehaviour
 
     [Header("References")]
     [SerializeField] Rigidbody rb;
+    [SerializeField] ActionManager actionManager;
+    [SerializeField] MeleeBlock meleeBlock;
+    [SerializeField] List<IStaggerable> staggerables = new();
     /* [SerializeField] HealthSystem healthSystem; */
 
     void OnValidate()
     {
-        TryGetComponent(out rb);
+        rb =
+            rb != null ?
+                rb :
+                GetComponentInParent<Actor>().GetComponentInChildren<Rigidbody>();
+
+        if (GetComponentInParent<Actor>() != null && (actionManager = GetComponentInParent<Actor>().GetComponentInChildren<ActionManager>()) != null)
+        {
+            actionManager.gameObject.GetComponents(staggerables);
+        }
+
+        if (GetComponentInParent<Actor>() != null)
+        {
+            meleeBlock = GetComponentInParent<Actor>().GetComponentInChildren<MeleeBlock>();
+        }
+
         /* TryGetComponent(out healthSystem); */
     }
 
-    public void TakeAttack(Attack attack)
+    /// <summary>
+    /// Processes an incoming attack, nullifying it if there is a <see cref="MeleeBlock"/> component presently blocking, or overriding data through <see cref="DamageOverrides"/> entries and applying the effects.
+    /// </summary>
+    /// <param name="attack"></param>
+    /// <returns></returns>
+    public uint TakeAttack(Attack attack)
     {
-        OverrideDamage(attack);
-        /* ApplyAttack(attack); */
+        if (!CheckBlock(ref attack))
+        {
+            OverrideDamage(attack);
+            /* OverrideKnockback(attack); */
+            /* OverrideStagger(attack); */
 
-        /* OverrideKnockback(attack); */
-        ApplyKnockback(attack);
+            /* ApplyAttack(attack); */
+            ApplyKnockback(attack);
+            ApplyStagger(attack);
 
+            return attack.damage;
+        }
+        else Debug.Log($"[Attack Receiver]: Block succesful");
+        return 0;
+    }
+
+    private bool CheckBlock(ref Attack attack)
+    {
+        if (meleeBlock)
+        {
+            Debug.Log($"[Attack Receiver]: Found MeleeBlock");
+            if (meleeBlock.TryBlock(attack))
+            {
+                attack.damage = 0;
+                attack.knockback = Vector3.zero;
+                return true;
+            }
+        }
+        return false;
     }
 
     public uint OverrideDamage(Attack attack)
@@ -46,9 +95,9 @@ public class AttackReceiver : MonoBehaviour
         return Math.Max((uint)damage, 0);
     }
 
-    private void OverrideKnockback(Attack attack)
+    private Vector3 OverrideKnockback(Attack attack)
     {
-        throw new NotImplementedException();
+        return attack.knockback;
     }
 
     private void ApplyKnockback(Attack attack)
@@ -57,6 +106,20 @@ public class AttackReceiver : MonoBehaviour
         if (rb)
         {
             rb.AddForce(attack.knockback, ForceMode.VelocityChange);
+        }
+    }
+
+    private void OverrideStagger(Attack attack)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void ApplyStagger(Attack attack)
+    {
+        foreach (var action in staggerables)
+        {
+            Debug.Log($"[AttackReceiver] Staggerable: {gameObject}+{action}");
+            action.Stagger();
         }
     }
 
