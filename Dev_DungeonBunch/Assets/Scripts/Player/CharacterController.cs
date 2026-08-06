@@ -14,7 +14,7 @@ public class CharacterController : MonoBehaviour
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float jumpForceMultiplier = 1f;
-    [SerializeField] private CooldownTimer jumpCooldown;
+    [SerializeField] private CountdownTimer jumpCooldown;
 
 
     [Header("Ground Check Cache")]
@@ -54,25 +54,45 @@ public class CharacterController : MonoBehaviour
 
     private bool jumpPressed;
 
+    void Awake()
+    {
+        OnValidate();
+    }
+
     void OnValidate()
     {
-        TryGetComponent(out rb);
-        TryGetComponent(out capsuleCollider);
-        TryGetComponent(out groundCheck);
+        rb =
+            rb != null ?
+                rb :
+                GetComponentInParent<Actor>().GetComponentInChildren<Rigidbody>();
+
+        capsuleCollider =
+            capsuleCollider != null ?
+                capsuleCollider :
+                GetComponentInParent<Actor>().GetComponentInChildren<CapsuleCollider>();
+
+        groundCheck =
+            groundCheck != null ?
+                groundCheck :
+                GetComponentInParent<Actor>().GetComponentInChildren<GroundCheck>();
 
         orientation =
-            orientation != null ? orientation : GetComponentInChildren<CameraController>().gameObject.transform;
+            orientation != null ?
+                orientation :
+                GetComponentInParent<Actor>().GetComponentInChildren<CameraController>().transform; // TODO: Refactor to CharacterView
 
         baseLinearDamping = rb.linearDamping;
+
+        UpdateUI();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        /* if (Input.GetKeyDown(KeyCode.R))
         {
             Debug.Log($"Jump height = {maxY.ToString("f2")}");
             maxY -= 0.1f;
-        }
+        } */
 
         movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
@@ -154,17 +174,26 @@ public class CharacterController : MonoBehaviour
 
     private void UpdateUI()
     {
-        t1.text = $"FlatVelocity = {FlatVelocity.ToString("f2")}";
-        t2.text = $"Velocity = {Velocity.ToString("f2")}";
-        t3.text = $"Velocity = {rb.linearVelocity.magnitude.ToString("f2")}";
+        if (t1)
+        {
+            t1.text = $"FlatVelocity = {FlatVelocity.ToString("f2")}";
+        }
+        if (t2)
+        {
+            t2.text = $"Velocity = {Velocity.ToString("f2")}";
+        }
+        if (t3)
+        {
+            t3.text = $"Velocity = {rb.linearVelocity.magnitude.ToString("f2")}";
+        }
     }
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.limeGreen;
-        Gizmos.DrawWireCube(transform.position, new(capsuleCollider.radius * 2, capsuleCollider.height, capsuleCollider.radius * 2));
+        /* Gizmos.color = Color.limeGreen;
+        Gizmos.DrawWireCube(transform.position, new(capsuleCollider.radius * 2, capsuleCollider.height, capsuleCollider.radius * 2)); */
 
         Gizmos.color = Color.white;
-        GizmosUtil.DrawCapsule(capsuleCollider);
+        GizmosUtil.DrawWireCapsule(capsuleCollider);
     }
 }
