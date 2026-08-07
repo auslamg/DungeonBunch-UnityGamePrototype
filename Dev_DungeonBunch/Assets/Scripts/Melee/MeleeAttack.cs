@@ -80,9 +80,9 @@ public class MeleeAttack : MonoBehaviour, IRunnable, IStaggerable, IExclusiveIns
         if (GetComponentInParent<Actor>())
         {
             actor =
-            actor != null ?
-                actor :
-                GetComponentInParent<Actor>().gameObject;
+                actor != null ?
+                    actor :
+                    GetComponentInParent<Actor>().gameObject;
 
             orientation =
                 orientation != null ?
