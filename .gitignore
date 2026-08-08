@@ -76,3 +76,4 @@ crashlytics-build.properties
 /Dev_DungeonBunch/Library
 /Dev_DungeonBunch/Temp
 Dev_DungeonBunch/UserSettings/Layouts/default-6000.dwlt
+"*.dwlt" 
