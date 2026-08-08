@@ -6,7 +6,7 @@ using UnityEngine;
 public class DamageMultiplierSO : ScriptableObject
 {
     [Header("Values")]
-    [SerializeField] private List<DamageMultiplierEntry> damageTypeMultipliers;
+    [SerializeField] private List<DamageMultiplierEntry> damageTypeMultipliers = new();
     public Dictionary<string, float> DamageOverrides { get; private set; }
 
     void OnValidate()

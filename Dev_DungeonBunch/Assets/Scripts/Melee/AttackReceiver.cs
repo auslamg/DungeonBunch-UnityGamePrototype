@@ -80,15 +80,18 @@ public class AttackReceiver : MonoBehaviour
     public uint OverrideDamage(Attack attack)
     {
         float damage = attack.damage;
-        foreach (var damageType in attack.damageTypes)
+        if (damageIntakeMultipliers != null)
         {
-            if (DamageOverrides.ContainsKey(damageType.Key))
+            foreach (var damageType in attack.damageTypes)
             {
-                damage *= DamageOverrides[damageType.Key];
-            }
-            if (damage <= 0)
-            {
-                break;
+                if (DamageOverrides.ContainsKey(damageType.Key))
+                {
+                    damage *= DamageOverrides[damageType.Key];
+                }
+                if (damage <= 0)
+                {
+                    break;
+                }
             }
         }
 
