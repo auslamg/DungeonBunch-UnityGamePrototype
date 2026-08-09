@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -41,6 +42,8 @@ public class CameraController : MonoBehaviour
 
     private void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         viewController =
             viewController != null ?
                 viewController :

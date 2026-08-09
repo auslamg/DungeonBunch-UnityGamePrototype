@@ -4378,9 +4378,9 @@ MonoBehaviour:
   hitBoxHalfExtents: {x: 1.5, y: 0.5, z: 1.5}
   actor: {fileID: 8048853644070134496}
   orientation: {fileID: 211399707999003390}
-  cooldownSlider: {fileID: 1555904445}
-  t1: {fileID: 1558907618}
-  actionCrosshair: {fileID: 21300000, guid: 404aaa018cc1bbe4fa0aaf8329142f67, type: 3}
+  cooldownSlider: {fileID: 0}
+  t1: {fileID: 0}
+  actionCrosshair: {fileID: 0}
 --- !u!1 &493473459759613858
 GameObject:
   m_ObjectHideFlags: 0
@@ -4489,8 +4489,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActionManager
   isBusy: 0
-  crosshair: {fileID: 1780897415}
-  baseCrosshair: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  crosshair: {fileID: 0}
+  baseCrosshair: {fileID: 0}
 --- !u!4 &2123387318872422825
 Transform:
   m_ObjectHideFlags: 0
@@ -4782,7 +4782,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed2ce85669408a2459440f38c2449d2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopEntity
-  guidPreview: a893-0bba-1a99-b884-8a90-b414-6dea-060e
+  guidPreview: e928-f114-25df-cac4-9bf8-63c0-7266-fa9b
 --- !u!33 &7104198617071875826
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -4835,9 +4835,9 @@ MonoBehaviour:
     Interval: 0.25
   isStaggered: 0
   orientation: {fileID: 211399707999003390}
-  cooldownSlider: {fileID: 765910323}
-  t1: {fileID: 1391354684}
-  actionCrosshair: {fileID: 21300000, guid: cab54b4049746814f8ab691bc390b86f, type: 3}
+  cooldownSlider: {fileID: 0}
+  t1: {fileID: 0}
+  actionCrosshair: {fileID: 0}
 --- !u!114 &7463022723321566917
 MonoBehaviour:
   m_ObjectHideFlags: 0

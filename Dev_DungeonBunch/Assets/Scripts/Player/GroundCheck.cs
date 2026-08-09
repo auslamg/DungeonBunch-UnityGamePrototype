@@ -26,6 +26,8 @@ public class GroundCheck : MonoBehaviour
 
     void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         TryGetComponent(out capsuleCollider);
     }
 

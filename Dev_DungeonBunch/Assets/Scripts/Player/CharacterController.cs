@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -63,6 +64,8 @@ public class CharacterController : MonoBehaviour
 
     void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         rb =
             rb != null ?
                 rb :

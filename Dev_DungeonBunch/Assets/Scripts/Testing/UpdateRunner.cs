@@ -13,6 +13,8 @@ public class UpdateRunner : MonoBehaviour
 
     private void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         var set = new HashSet<MonoBehaviour>();
         foreach (var mono in tickables)
         {

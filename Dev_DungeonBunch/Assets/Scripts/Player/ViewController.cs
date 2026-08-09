@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -29,15 +30,18 @@ public class ViewController : MonoBehaviour
 
     private void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         rb =
             rb != null ?
                 rb :
                 GetComponentInParent<Actor>().GetComponentInChildren<Rigidbody>();
-        
+
         mesh =
             mesh != null ?
                 mesh :
                 GetComponentInParent<Actor>().GetComponentInChildren<MeshRenderer>();
+
     }
 
     private void Update()

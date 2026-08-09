@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -21,6 +22,8 @@ public class AttackReceiver : MonoBehaviour
 
     void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         rb =
             rb != null ?
                 rb :

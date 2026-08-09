@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,13 +56,13 @@ public class MeleeBlock : MonoBehaviour, IRunnable, IStaggerable, IExclusiveHeld
 
     void OnValidate()
     {
-        if (GetComponentInParent<Actor>() != null)
-        {
-            orientation =
+        if (gameObject.IsPrefabDefinition()) return;
+        
+        orientation =
             orientation != null ?
                 orientation :
                 GetComponentInParent<Actor>().GetComponentInChildren<CameraController>().transform; // TODO: Refactor to CharacterView flag component
-        }
+        
 
         parryDuration.Reset();
         blockDuration.Reset();

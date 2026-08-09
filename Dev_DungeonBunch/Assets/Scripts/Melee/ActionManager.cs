@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,6 +57,8 @@ public class ActionManager : MonoBehaviour
 
     private void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         gameObject.GetComponents(exclusiveActions);
 
         baseCrosshair =
