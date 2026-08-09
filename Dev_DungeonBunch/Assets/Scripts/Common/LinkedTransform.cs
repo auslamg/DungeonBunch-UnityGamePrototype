@@ -11,13 +11,11 @@ public class LinkedTransform : MonoBehaviour
     [SerializeField] private bool copyLocalRotation = true;
     [SerializeField] private bool3 copyLocalRotationAxes = new(true, true, true);
 
-    // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         if (!usePhysics)
         {
             ExecuteCopy();
-
         }
     }
 

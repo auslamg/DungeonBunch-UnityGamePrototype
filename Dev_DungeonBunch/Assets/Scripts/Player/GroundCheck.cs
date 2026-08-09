@@ -9,13 +9,13 @@ public class GroundCheck : MonoBehaviour
     [SerializeField] float radiusMultiplier = 0.8f;
     [SerializeField] float maxDistance = 1f;
     [SerializeField] LayerMask layerMask;
-    Vector3 Origin => gameObject.transform.position + new Vector3(0, capsuleCollider.bounds.extents.y / 2, 0);
+    Vector3 Origin => capsuleCollider.transform.TransformPoint(capsuleCollider.center) - new Vector3(0, capsuleCollider.bounds.extents.y - capsuleCollider.radius, 0);
     Vector3 CastedOrigin => Origin + Vector3.down * ranDistance;
-    Vector3 ContactPoint => IsGrounded ? hitInfo.point : CastedOrigin;
+    Vector3 ContactPoint => isGrounded ? hitInfo.point : CastedOrigin;
     float Radius => capsuleCollider.radius * radiusMultiplier;
 
     [Header("Cache")]
-    [SerializeField] private bool IsGrounded;
+    [SerializeField] private bool isGrounded;
     [SerializeField] private RaycastHit hitInfo;
     [SerializeField] private float ranDistance = 0;
 
@@ -31,21 +31,21 @@ public class GroundCheck : MonoBehaviour
         TryGetComponent(out capsuleCollider);
     }
 
-    public bool isGrounded()
+    public bool IsGrounded()
     {
-        IsGrounded = Physics.SphereCast(DownRay, Radius, out hitInfo, maxDistance, layerMask);
-        ranDistance = IsGrounded ? hitInfo.distance : maxDistance;
+        isGrounded = Physics.SphereCast(DownRay, Radius, out hitInfo, maxDistance, layerMask);
+        ranDistance = isGrounded ? hitInfo.distance : maxDistance;
 
-        return IsGrounded;
+        return isGrounded;
     }
 
-    public bool isGrounded(out RaycastHit hitInfo)
+    public bool IsGrounded(out RaycastHit hitInfo)
     {
-        IsGrounded = Physics.SphereCast(DownRay, Radius, out this.hitInfo, maxDistance, layerMask);
+        isGrounded = Physics.SphereCast(DownRay, Radius, out this.hitInfo, maxDistance, layerMask);
         hitInfo = this.hitInfo;
-        ranDistance = IsGrounded ? hitInfo.distance : maxDistance;
+        ranDistance = isGrounded ? hitInfo.distance : maxDistance;
 
-        return IsGrounded;
+        return isGrounded;
     }
 
     void OnDrawGizmos()
@@ -55,13 +55,13 @@ public class GroundCheck : MonoBehaviour
 
         Handles.DrawDottedLine(Origin, Origin + Vector3.down * ranDistance, 1);
 
-        Gizmos.color = IsGrounded ? Color.green : Color.red;
-        Handles.color = IsGrounded ? Color.green : Color.red;
+        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Handles.color = isGrounded ? Color.green : Color.red;
 
         Gizmos.DrawSphere(Origin + Vector3.down * ranDistance, 0.05f);
         Gizmos.DrawWireSphere(Origin + Vector3.down * ranDistance, capsuleCollider.radius * radiusMultiplier);
 
-        if (IsGrounded)
+        if (isGrounded)
         {
             Handles.DrawDottedLine(Origin + Vector3.down * ranDistance, ContactPoint, 1);
             Gizmos.DrawSphere(ContactPoint, 0.05f);

@@ -36,26 +36,34 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private Rigidbody rb;
     [SerializeField] private CapsuleCollider capsuleCollider;
     [SerializeField] private GroundCheck groundCheck;
-    [SerializeField] private Transform orientation;
+    [SerializeField] private Transform view;
+    [SerializeField] private PoseController pose;    
+
+    [Header("Crouch")]
+    private bool IsCrouching => pose.IsCrouching;
+    [SerializeField] private float crouchSpeedMultiplier = 0.5f;
 
     [Header("Debug UI")]
     [SerializeField] private TMP_Text t1;
     [SerializeField] private TMP_Text t2;
     [SerializeField] private TMP_Text t3;
 
-    private Vector3 movementInput;
+    [Header("Input")]
+    [SerializeField] private Vector3 movementInput;
     private Vector3 LocalizedInput
     {
         get
         {
-            var vector = orientation.forward * movementInput.z + orientation.right * movementInput.x;
+            var vector = view.forward * movementInput.z + view.right * movementInput.x;
             vector.y = 0;
             vector.Normalize();
             return vector;
         }
     }
 
-    private bool jumpPressed;
+    [SerializeField] private bool jumpPressed;
+
+    [SerializeField] private bool crouchPressed;
 
     void Awake()
     {
@@ -81,10 +89,15 @@ public class CharacterController : MonoBehaviour
                 groundCheck :
                 GetComponentInParent<Actor>().GetComponentInChildren<GroundCheck>();
 
-        orientation =
-            orientation != null ?
-                orientation :
-                GetComponentInParent<Actor>().GetComponentInChildren<CameraController>().transform; // TODO: Refactor to CharacterView
+        view =
+            view != null ?
+                view :
+                GetComponentInParent<Actor>().GetComponentInChildren<ViewController>().transform;
+
+        pose =
+            pose != null ?
+                pose :
+                GetComponentInParent<Actor>().GetComponentInChildren<PoseController>();
 
         baseLinearDamping = rb.linearDamping;
 
@@ -93,19 +106,17 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
-        /* if (Input.GetKeyDown(KeyCode.R))
+        // INPUT
         {
-            Debug.Log($"Jump height = {maxY.ToString("f2")}");
-            maxY -= 0.1f;
-        } */
+            movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
-        movementInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+            if (Input.GetButtonDown("Jump"))
+            {
+                jumpPressed = true;
+            }
 
-        if (Input.GetButtonDown("Jump"))
-        {
-            jumpPressed = true;
+            crouchPressed = Input.GetButton("Crouch");
         }
-
     }
 
     void FixedUpdate()
@@ -114,29 +125,46 @@ public class CharacterController : MonoBehaviour
         maxY = Mathf.Max(maxY, transform.position.y);
 
         // GroundCheck fetch
-        isGrounded = groundCheck.isGrounded(out groundCheckHitInfo);
+        isGrounded = groundCheck.IsGrounded(out groundCheckHitInfo);
 
         // Handle friction
-        dampingTurnOffTimer.Tick(Time.deltaTime);
-        if (movementInput.magnitude != 0f || !isGrounded || jumpDamping || !dampingTurnOffTimer.IsTicking())
         {
-            rb.linearDamping = 0;
+            dampingTurnOffTimer.Tick(Time.deltaTime);
+            if (movementInput.magnitude != 0f || !isGrounded || jumpDamping || !dampingTurnOffTimer.IsTicking())
+            {
+                rb.linearDamping = 0;
+            }
+            else
+            {
+                rb.linearDamping = baseLinearDamping;
+            }
         }
-        else
-        {
-            rb.linearDamping = baseLinearDamping;
-        }
+
+        // TODO: HandleSlope
+        // TODO: HandleSteps
+
+        HandleJump();
+
+        var finalforce =
+            IsCrouching ?
+                accelerationMultiplier * crouchSpeedMultiplier * Time.fixedDeltaTime * LocalizedInput :
+                accelerationMultiplier * Time.fixedDeltaTime * LocalizedInput;
 
         // Apply forces
         rb.AddForce(
-            LocalizedInput * accelerationMultiplier * Time.fixedDeltaTime,
+            finalforce,
             ForceMode.VelocityChange
         );
-        HandleJump();
 
         // Clamp velocity
-        var clampedFlatVector = Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity);
-        rb.linearVelocity = new(clampedFlatVector.x, rb.linearVelocity.y, clampedFlatVector.z);
+        {
+            var clampedFlatVector =
+            IsCrouching ?
+                Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity * crouchSpeedMultiplier) :
+                Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity);
+
+            rb.linearVelocity = new(clampedFlatVector.x, rb.linearVelocity.y, clampedFlatVector.z);
+        }
 
         UpdateUI();
     }
