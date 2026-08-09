@@ -1,49 +1,60 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
+// TODO: Refactor: extract input
 public class CameraController : MonoBehaviour
 {
     [Header("Input")]
-    [SerializeField] float mouseX;
-    [SerializeField] float mouseY;
+    [SerializeField] private float mouseX;
+    [SerializeField] private float mouseY;
 
     [Header("Clamping")]
-    [Range(70, 90)][SerializeField] float maxYAngle = 89;
+    [Range(70, 90)][SerializeField] private float maxYAngle = 89;
 
     [Header("Sensitivity stats")]
-    [Range(.5f, 4)][SerializeField] float globalSensitivity = 1;
-    [Range(50f, 400)][SerializeField] float sensitivityX = 100;
-    [Range(50f, 400)][SerializeField] float sensitivityY = 100;
+    [Range(.5f, 4)][SerializeField] private float globalSensitivity = 1;
+    [Range(50f, 400)][SerializeField] private float sensitivityX = 100;
+    [Range(50f, 400)][SerializeField] private float sensitivityY = 100;
 
     [Header("Misc")]
-    [SerializeField] const float hardcodeSensMult = 3;
-    [SerializeField] bool flipY = false;
+    [SerializeField] private const float BASE_SENSITIVITY = 3;
+    [SerializeField] private bool flipY = false;
+
+    [Header("References")]
+    [SerializeField] private ViewController viewController;
 
     [Header("Debug")]
-    [SerializeField] float rotationX = 0f;
-    [SerializeField] float rotationY = 0f;
+    [SerializeField] private float rotationX = 0f;
+    [SerializeField] private float rotationY = 0f;
 
-    [SerializeField] float clampXValue = 0f;
-    [SerializeField] float clampYValue = 0f;
+    [SerializeField] private float clampXValue = 0f;
+    [SerializeField] private float clampYValue = 0f;
 
-
-    // Start is called before the first frame update
-    private void Start()
+    private void Awake()
     {
-        Debug.Log("Loaded " + this.GetType().Name + " correctly on " + this.gameObject.name + " gameObject");
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void OnValidate()
+    {
+        if (gameObject.IsPrefabDefinition()) return;
+
+        viewController =
+            viewController != null ?
+                viewController :
+                GetComponentInParent<Actor>().GetComponentInChildren<ViewController>();
     }
 
     private void Update()
     {
         //Read input and process
-        mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensitivityX * globalSensitivity * hardcodeSensMult;
-        mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensitivityY * globalSensitivity * hardcodeSensMult;
+        mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensitivityX * globalSensitivity * BASE_SENSITIVITY;
+        mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensitivityY * globalSensitivity * BASE_SENSITIVITY;
 
         //Clamp input if necessary
         ClampMouseInput(ref mouseX, ref mouseY);
@@ -56,8 +67,7 @@ public class CameraController : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, -maxYAngle, maxYAngle);
 
         //Apply rotation
-        transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
-        UpdatePlayerModelDirection();
+        viewController.SetRotation(Quaternion.Euler(rotationX, rotationY, 0));
     }
 
     private void ClampMouseInput(ref float mouseX, ref float mouseY)
@@ -72,11 +82,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    private void UpdatePlayerModelDirection()
-    {
-        //TODO
-        //throw new NotImplementedException();
-    }
+    
 
     public void SetClampValues(float limitX, float limitY)
     {

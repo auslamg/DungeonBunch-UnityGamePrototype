@@ -12,6 +12,8 @@ public class PlayerInputManager : MonoBehaviour
     //TODO: Restructure
     private void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         actionManager =
             actionManager != null ?
                 actionManager :

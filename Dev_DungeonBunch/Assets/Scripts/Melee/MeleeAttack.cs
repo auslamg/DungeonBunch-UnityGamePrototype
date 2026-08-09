@@ -77,6 +77,8 @@ public class MeleeAttack : MonoBehaviour, IRunnable, IStaggerable, IExclusiveIns
 
     void OnValidate()
     {
+        if (gameObject.IsPrefabDefinition()) return;
+
         if (GetComponentInParent<Actor>())
         {
             actor =
