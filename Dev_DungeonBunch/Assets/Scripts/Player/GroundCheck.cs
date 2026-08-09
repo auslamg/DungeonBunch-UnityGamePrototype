@@ -9,7 +9,7 @@ public class GroundCheck : MonoBehaviour
     [SerializeField] float radiusMultiplier = 0.8f;
     [SerializeField] float maxDistance = 1f;
     [SerializeField] LayerMask layerMask;
-    Vector3 Origin => gameObject.transform.position - new Vector3(0, capsuleCollider.bounds.extents.y / 2, 0);
+    Vector3 Origin => gameObject.transform.position + new Vector3(0, capsuleCollider.bounds.extents.y / 2, 0);
     Vector3 CastedOrigin => Origin + Vector3.down * ranDistance;
     Vector3 ContactPoint => IsGrounded ? hitInfo.point : CastedOrigin;
     float Radius => capsuleCollider.radius * radiusMultiplier;

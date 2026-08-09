@@ -15,13 +15,15 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float jumpForceMultiplier = 1f;
     [SerializeField] private CountdownTimer jumpCooldown;
-
+    [SerializeField] private float maxY; // This is only for debug. Remove later
+    private bool jumpDamping = false;
 
     [Header("Ground Check Cache")]
     [SerializeField] private bool isGrounded = false;
     [SerializeField] private RaycastHit groundCheckHitInfo;
 
-    [Header("Damping Cache")]
+    [Header("Damping")]
+    [SerializeField] private CountdownTimer dampingTurnOffTimer = new(.5f);
     private float baseLinearDamping;
 
     [Header("Movement Getters")]
@@ -100,10 +102,8 @@ public class CharacterController : MonoBehaviour
         {
             jumpPressed = true;
         }
-    }
 
-    private float maxY;
-    private bool jumpDamping = false;
+    }
 
     void FixedUpdate()
     {
@@ -114,7 +114,8 @@ public class CharacterController : MonoBehaviour
         isGrounded = groundCheck.isGrounded(out groundCheckHitInfo);
 
         // Handle friction
-        if (movementInput.magnitude != 0f || !isGrounded || jumpDamping)
+        dampingTurnOffTimer.Tick(Time.deltaTime);
+        if (movementInput.magnitude != 0f || !isGrounded || jumpDamping || !dampingTurnOffTimer.IsTicking())
         {
             rb.linearDamping = 0;
         }

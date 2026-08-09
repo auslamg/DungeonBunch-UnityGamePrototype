@@ -8,9 +8,12 @@ public static class GizmosUtil
     {
         float coreHeight = capsuleCollider.bounds.extents.y - capsuleCollider.radius;
 
-        Vector3 center = capsuleCollider.transform.position;
-        Vector3 top = center + coreHeight * Vector3.up;
-        Vector3 bottom = center - coreHeight * Vector3.up;
+        Vector3 center = 
+            capsuleCollider.transform.position + capsuleCollider.center;
+        Vector3 top =
+            center + coreHeight * Vector3.up;
+        Vector3 bottom =
+            center - coreHeight * Vector3.up;
         float radius = capsuleCollider.radius;
 
         // Top hemisphere
