@@ -31,7 +31,7 @@ public class GroundCheck : MonoBehaviour
         TryGetComponent(out capsuleCollider);
     }
 
-    public bool IsGrounded()
+    public bool Check()
     {
         isGrounded = Physics.SphereCast(DownRay, Radius, out hitInfo, maxDistance, layerMask);
         ranDistance = isGrounded ? hitInfo.distance : maxDistance;
@@ -39,7 +39,7 @@ public class GroundCheck : MonoBehaviour
         return isGrounded;
     }
 
-    public bool IsGrounded(out RaycastHit hitInfo)
+    public bool Check(out RaycastHit hitInfo)
     {
         isGrounded = Physics.SphereCast(DownRay, Radius, out this.hitInfo, maxDistance, layerMask);
         hitInfo = this.hitInfo;

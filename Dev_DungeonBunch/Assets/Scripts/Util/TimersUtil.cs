@@ -59,4 +59,9 @@ public struct CountdownTimer
     {
         Time = readyToTick ? 0 : Interval;
     }
+
+    public void Set(float time)
+    {
+        Time = time;
+    }
 }

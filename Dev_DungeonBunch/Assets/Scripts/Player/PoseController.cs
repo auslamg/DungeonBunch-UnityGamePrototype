@@ -64,7 +64,7 @@ public class PoseController : MonoBehaviour
     private void FixedUpdate()
     {
         // GroundCheck fetch
-        isTopped = topCheck.IsTopped(out topCheckHitInfo);
+        isTopped = topCheck.Check(out topCheckHitInfo);
         HandleCrouch();
     }
 

@@ -15,9 +15,10 @@ public class CharacterController : MonoBehaviour
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float jumpForceMultiplier = 1f;
-    [SerializeField] private CountdownTimer jumpCooldown;
-    [SerializeField] private float maxY; // This is only for debug. Remove later
-    private bool jumpDamping = false;
+    [SerializeField] private bool jumpDamping = false;
+    [SerializeField] private CountdownTimer jumpCooldown = new (.25f);
+    [SerializeField] private CountdownTimer coyoteTime = new(.25f);
+    [SerializeField] private CountdownTimer jumpBuffer = new(.15f);
 
     [Header("Ground Check Cache")]
     [SerializeField] private bool isGrounded = false;
@@ -37,10 +38,10 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private CapsuleCollider capsuleCollider;
     [SerializeField] private GroundCheck groundCheck;
     [SerializeField] private Transform view;
-    [SerializeField] private PoseController pose;    
+    [SerializeField] private PoseController pose;
 
     [Header("Crouch")]
-    private bool IsCrouching => pose.IsCrouching;
+    private bool isCrouching = false;
     [SerializeField] private float crouchSpeedMultiplier = 0.5f;
 
     [Header("Debug UI")]
@@ -60,10 +61,9 @@ public class CharacterController : MonoBehaviour
             return vector;
         }
     }
-
     [SerializeField] private bool jumpPressed;
-
     [SerializeField] private bool crouchPressed;
+    
 
     void Awake()
     {
@@ -113,6 +113,7 @@ public class CharacterController : MonoBehaviour
             if (Input.GetButtonDown("Jump"))
             {
                 jumpPressed = true;
+                jumpBuffer.Reset();
             }
 
             crouchPressed = Input.GetButton("Crouch");
@@ -121,11 +122,9 @@ public class CharacterController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // DEBUG
-        maxY = Mathf.Max(maxY, transform.position.y);
-
         // GroundCheck fetch
-        isGrounded = groundCheck.IsGrounded(out groundCheckHitInfo);
+        isGrounded = groundCheck.Check(out groundCheckHitInfo);
+        isCrouching = pose.IsCrouching;
 
         // Handle friction
         {
@@ -146,7 +145,7 @@ public class CharacterController : MonoBehaviour
         HandleJump();
 
         var finalforce =
-            IsCrouching ?
+            isCrouching ?
                 accelerationMultiplier * crouchSpeedMultiplier * Time.fixedDeltaTime * LocalizedInput :
                 accelerationMultiplier * Time.fixedDeltaTime * LocalizedInput;
 
@@ -157,9 +156,10 @@ public class CharacterController : MonoBehaviour
         );
 
         // Clamp velocity
+        if (movementInput != Vector3.zero)
         {
             var clampedFlatVector =
-            IsCrouching ?
+            isCrouching && isGrounded ?
                 Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity * crouchSpeedMultiplier) :
                 Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity);
 
@@ -171,16 +171,27 @@ public class CharacterController : MonoBehaviour
 
     private void HandleJump()
     {
+        // FIX: Well-timed double jumped is possible due to coyotetime and cooldown overlap
+        if (!isGrounded)
+        {
+            coyoteTime.Tick(Time.deltaTime);
+        }
+        else
+        {
+            coyoteTime.Reset();
+        }
         jumpCooldown.Tick(Time.deltaTime);
-        if (jumpPressed)
+
+        if (jumpPressed || !jumpBuffer.Tick(Time.deltaTime))
         {
             jumpPressed = false;
 
-            if (isGrounded && jumpCooldown.IsTicking())
+            if ((isGrounded || !coyoteTime.IsTicking()) && jumpCooldown.IsTicking())
             {
                 // Jump
                 jumpDamping = true;
                 rb.linearDamping = 0;
+                jumpBuffer.Set(0);
 
                 float gravityTickCompensation = -(Physics.gravity.y * Time.deltaTime) / 2;
 
@@ -198,6 +209,7 @@ public class CharacterController : MonoBehaviour
                 jumpCooldown.Reset();
             }
         }
+
         if (jumpCooldown.IsTicking())
         {
             jumpDamping = false;

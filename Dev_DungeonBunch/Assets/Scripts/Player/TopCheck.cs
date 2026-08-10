@@ -31,7 +31,7 @@ public class TopCheck : MonoBehaviour
         TryGetComponent(out capsuleCollider);
     }
 
-    public bool IsTopped()
+    public bool Check()
     {
         isTopped = Physics.SphereCast(UpRay, Radius, out hitInfo, maxDistance, layerMask);
         ranDistance = isTopped ? hitInfo.distance : maxDistance;
@@ -39,7 +39,7 @@ public class TopCheck : MonoBehaviour
         return isTopped;
     }
 
-    public bool IsTopped(out RaycastHit hitInfo)
+    public bool Check(out RaycastHit hitInfo)
     {
         isTopped = Physics.SphereCast(UpRay, Radius, out this.hitInfo, maxDistance, layerMask);
         hitInfo = this.hitInfo;
