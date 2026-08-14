@@ -17,7 +17,10 @@ public class AttackReceiver : MonoBehaviour
     [SerializeField] ActionManager actionManager;
     [SerializeField] MeleeBlock meleeBlock;
     [SerializeField] List<IStaggerable> staggerables = new();
-    /* [SerializeField] HealthSystem healthSystem; */
+    [SerializeField] private HealthSystem healthSystem;
+
+    [Header("DebugDamage")]
+    [SerializeField] int debugDamage = 15;
 
     void OnValidate()
     {
@@ -36,7 +39,7 @@ public class AttackReceiver : MonoBehaviour
             meleeBlock = GetComponentInParent<Actor>().GetComponentInChildren<MeleeBlock>();
         }
 
-        /* TryGetComponent(out healthSystem); */
+        TryGetComponent(out healthSystem);
     }
 
     /// <summary>
@@ -52,7 +55,7 @@ public class AttackReceiver : MonoBehaviour
             /* OverrideKnockback(attack); */
             /* OverrideStagger(attack); */
 
-            /* ApplyAttack(attack); */
+            ApplyAttack(attack);
             ApplyKnockback(attack);
             ApplyStagger(attack);
 
@@ -60,6 +63,15 @@ public class AttackReceiver : MonoBehaviour
         }
         else Debug.Log($"[Attack Receiver]: Block succesful");
         return 0;
+    }
+
+    private void ApplyAttack(Attack attack)
+    {
+        if(healthSystem != null && Input.GetKeyDown(KeyCode.B))
+        {
+            healthSystem.GetDamage(debugDamage);
+            Debug.Log(debugDamage);
+        }  
     }
 
     private bool CheckBlock(ref Attack attack)
