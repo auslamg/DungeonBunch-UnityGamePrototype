@@ -18,6 +18,9 @@ public class GroundCheck : MonoBehaviour
     [SerializeField] private bool isGrounded;
     [SerializeField] private RaycastHit hitInfo;
     [SerializeField] private float ranDistance = 0;
+    [SerializeField] private float maxSlopeAngle = 55f;
+    [SerializeField] public bool isOnSlope = false;
+    [SerializeField] public bool isOnSteepSlope = false;
 
     [Header("References")]
     [SerializeField] CapsuleCollider capsuleCollider;
@@ -36,6 +39,9 @@ public class GroundCheck : MonoBehaviour
         isGrounded = Physics.SphereCast(DownRay, Radius, out hitInfo, maxDistance, layerMask);
         ranDistance = isGrounded ? hitInfo.distance : maxDistance;
 
+        isOnSlope = Vector3.Angle(Vector3.up, hitInfo.normal) > 0;
+        isOnSteepSlope = Vector3.Angle(Vector3.up, hitInfo.normal) > maxSlopeAngle;
+
         return isGrounded;
     }
 
@@ -44,6 +50,9 @@ public class GroundCheck : MonoBehaviour
         isGrounded = Physics.SphereCast(DownRay, Radius, out this.hitInfo, maxDistance, layerMask);
         hitInfo = this.hitInfo;
         ranDistance = isGrounded ? hitInfo.distance : maxDistance;
+
+        isOnSlope = Vector3.Angle(Vector3.up, hitInfo.normal) > 0;
+        isOnSteepSlope = Vector3.Angle(Vector3.up, hitInfo.normal) > maxSlopeAngle;
 
         return isGrounded;
     }
@@ -55,8 +64,8 @@ public class GroundCheck : MonoBehaviour
 
         Handles.DrawDottedLine(Origin, Origin + Vector3.down * ranDistance, 1);
 
-        Gizmos.color = isGrounded ? Color.green : Color.red;
-        Handles.color = isGrounded ? Color.green : Color.red;
+        Gizmos.color = GroundCheckColor();
+        Handles.color = GroundCheckColor();
 
         Gizmos.DrawSphere(Origin + Vector3.down * ranDistance, 0.05f);
         Gizmos.DrawWireSphere(Origin + Vector3.down * ranDistance, capsuleCollider.radius * radiusMultiplier);
@@ -66,5 +75,20 @@ public class GroundCheck : MonoBehaviour
             Handles.DrawDottedLine(Origin + Vector3.down * ranDistance, ContactPoint, 1);
             Gizmos.DrawSphere(ContactPoint, 0.05f);
         }
+    }
+
+    Color GroundCheckColor()
+    {
+        return !isGrounded ?
+            Color.red :
+
+            isOnSteepSlope ?
+                Color.darkOrange :
+
+                isOnSlope ?
+                    Color.yellowGreen : 
+
+                    // Grounded
+                    Color.green;
     }
 }

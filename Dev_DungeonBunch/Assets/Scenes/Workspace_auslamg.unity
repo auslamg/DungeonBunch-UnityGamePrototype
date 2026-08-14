@@ -2710,9 +2710,9 @@ Transform:
   m_GameObject: {fileID: 270965057}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102231e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 0.5, z: 10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 42, y: 1.5, z: 42}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 990350293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3598,9 +3598,9 @@ Transform:
   m_GameObject: {fileID: 419064008}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102231e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 1, z: 5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 42, y: 3, z: 27}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 990350293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6230,7 +6230,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 990350293}
@@ -6673,9 +6673,9 @@ Transform:
   m_GameObject: {fileID: 1035094494}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102231e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 2, z: -5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 42, y: 6, z: -3}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 990350293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8204,9 +8204,9 @@ Transform:
   m_GameObject: {fileID: 1510567162}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102231e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 2.5, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 42, y: 7.5, z: -18}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 990350293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9240,9 +9240,9 @@ Transform:
   m_GameObject: {fileID: 1590488914}
   serializedVersion: 2
   m_LocalRotation: {x: 1.1102231e-17, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 1.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 42, y: 4.5, z: 12}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 990350293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -15619,6 +15619,8 @@ MonoBehaviour:
     Time: 0
     Interval: 0.25
   isGrounded: 0
+  isOnSlope: 0
+  isOnSteepSlope: 0
   dampingTurnOffTimer:
     Time: 0
     Interval: 0.5
@@ -15872,6 +15874,9 @@ MonoBehaviour:
     m_Bits: 4294967295
   isGrounded: 0
   ranDistance: 0
+  maxSlopeAngle: 55
+  isOnSlope: 0
+  isOnSteepSlope: 0
   capsuleCollider: {fileID: 211145632524357162}
 --- !u!4 &3320862418431687589
 Transform:
@@ -16001,7 +16006,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3951942186671745962, guid: 0f7c375cdecfebb41ae246f967721f84, type: 3}
       propertyPath: guidPreview
-      value: 100e-bcaf-deeb-ede4-4992-580a-ae66-8f87
+      value: 4376-9a68-c963-72d4-1903-dcff-520a-9d6f
       objectReference: {fileID: 0}
     - target: {fileID: 4341620744455379353, guid: 0f7c375cdecfebb41ae246f967721f84, type: 3}
       propertyPath: rb
@@ -16047,6 +16052,10 @@ PrefabInstance:
       propertyPath: view
       value: 
       objectReference: {fileID: 2042928421}
+    - target: {fileID: 8768790149055079268, guid: 0f7c375cdecfebb41ae246f967721f84, type: 3}
+      propertyPath: maxSlopeAngle
+      value: 55
+      objectReference: {fileID: 0}
     - target: {fileID: 8768790149055079268, guid: 0f7c375cdecfebb41ae246f967721f84, type: 3}
       propertyPath: baseColliderHeight
       value: 2
@@ -16163,7 +16172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed2ce85669408a2459440f38c2449d2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopEntity
-  guidPreview: 4de9-f12e-4dee-f3e4-38d3-5ac4-ec26-c503
+  guidPreview: 95cb-5144-d418-b534-3af6-2f7c-a3b6-59c6
 --- !u!33 &7104198617071875826
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -9,20 +9,30 @@ using UnityEngine;
 public class CharacterController : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] private float maxVelocity = 8f;
+    [SerializeField] private float maxVelocity = 7.5f;
+    private float CurrentMaxVelocity => !isCrouching ?
+        maxVelocity : isGrounded ?
+            maxVelocity * crouchSpeedMultiplier :
+            maxVelocity;
     [SerializeField] private float accelerationMultiplier = 1f;
+    private float CurrentAcceleration => !isCrouching ?
+        accelerationMultiplier : isGrounded ?
+            accelerationMultiplier * crouchSpeedMultiplier :
+            accelerationMultiplier;
 
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float jumpForceMultiplier = 1f;
     [SerializeField] private bool jumpDamping = false;
-    [SerializeField] private CountdownTimer jumpCooldown = new (.25f);
+    [SerializeField] private CountdownTimer jumpCooldown = new(.25f);
     [SerializeField] private CountdownTimer coyoteTime = new(.25f);
     [SerializeField] private CountdownTimer jumpBuffer = new(.15f);
 
-    [Header("Ground Check Cache")]
+    [Header("Ground Check")]
     [SerializeField] private bool isGrounded = false;
     [SerializeField] private RaycastHit groundCheckHitInfo;
+    [SerializeField] private bool isOnSlope = false;
+    [SerializeField] private bool isOnSteepSlope = false;
 
     [Header("Damping")]
     [SerializeField] private CountdownTimer dampingTurnOffTimer = new(.5f);
@@ -51,19 +61,24 @@ public class CharacterController : MonoBehaviour
 
     [Header("Input")]
     [SerializeField] private Vector3 movementInput;
-    private Vector3 LocalizedInput
+    private Vector3 MoveInput
     {
         get
         {
-            var vector = view.forward * movementInput.z + view.right * movementInput.x;
-            vector.y = 0;
-            vector.Normalize();
-            return vector;
+            float yaw = view.eulerAngles.y;
+
+            Vector3 forward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+            Vector3 right = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+
+            return (
+                forward * movementInput.z +
+                right * movementInput.x
+            ).normalized;
         }
     }
     [SerializeField] private bool jumpPressed;
     [SerializeField] private bool crouchPressed;
-    
+
 
     void Awake()
     {
@@ -125,11 +140,49 @@ public class CharacterController : MonoBehaviour
         // GroundCheck fetch
         isGrounded = groundCheck.Check(out groundCheckHitInfo);
         isCrouching = pose.IsCrouching;
+        isOnSlope = groundCheck.isOnSlope;
+        isOnSteepSlope = groundCheck.isOnSteepSlope;
+
+        // TODO: Refactor movement input override
+
+        Vector3 slopeProjectedMoveInput = new();
+        // TODO: HandleSlope
+        // Handle slope
+        {
+            if (isOnSteepSlope)
+            {
+                isGrounded = false;
+            }
+
+            if (isGrounded && !isOnSteepSlope)
+            {
+                rb.useGravity = false;
+            }
+            else
+            {
+                rb.useGravity = true;
+            }
+
+            if (isOnSlope && !isOnSteepSlope)
+            {
+                slopeProjectedMoveInput =
+                    Vector3.ProjectOnPlane(MoveInput, groundCheckHitInfo.normal);
+
+                if ((MoveInput == Vector3.zero || Vector3.Angle(Vector3.up, slopeProjectedMoveInput) <= 90) &&
+                    rb.linearVelocity.y < 0)
+                {
+                    rb.linearVelocity = new Vector3(
+                        rb.linearVelocity.x,
+                        0,
+                        rb.linearVelocity.z);
+                }
+            }
+        }
 
         // Handle friction
         {
             dampingTurnOffTimer.Tick(Time.deltaTime);
-            if (movementInput.magnitude != 0f || !isGrounded || jumpDamping || !dampingTurnOffTimer.IsTicking())
+            if (MoveInput.magnitude != 0 || !isGrounded || jumpDamping || !dampingTurnOffTimer.IsTicking() || isOnSteepSlope)
             {
                 rb.linearDamping = 0;
             }
@@ -139,15 +192,13 @@ public class CharacterController : MonoBehaviour
             }
         }
 
-        // TODO: HandleSlope
         // TODO: HandleSteps
 
         HandleJump();
 
-        var finalforce =
-            isCrouching ?
-                accelerationMultiplier * crouchSpeedMultiplier * Time.fixedDeltaTime * LocalizedInput :
-                accelerationMultiplier * Time.fixedDeltaTime * LocalizedInput;
+        var finalforce = isOnSlope && !isOnSteepSlope ?
+            CurrentAcceleration * Time.fixedDeltaTime * slopeProjectedMoveInput :
+            CurrentAcceleration * Time.fixedDeltaTime * MoveInput;
 
         // Apply forces
         rb.AddForce(
@@ -156,14 +207,13 @@ public class CharacterController : MonoBehaviour
         );
 
         // Clamp velocity
-        if (movementInput != Vector3.zero)
+        if (MoveInput != Vector3.zero)
         {
-            var clampedFlatVector =
-            isCrouching && isGrounded ?
-                Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity * crouchSpeedMultiplier) :
-                Vector3.ClampMagnitude(FlatLinearVelocity, maxVelocity);
-
-            rb.linearVelocity = new(clampedFlatVector.x, rb.linearVelocity.y, clampedFlatVector.z);
+            var clampedFlatVector = Vector3.ClampMagnitude(FlatLinearVelocity, CurrentMaxVelocity);
+            rb.linearVelocity = new Vector3(
+                clampedFlatVector.x,
+                rb.linearVelocity.y,
+                clampedFlatVector.z);
         }
 
         UpdateUI();
