@@ -5,7 +5,8 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(HealthSystem))]
 public class DebugDamage : MonoBehaviour
-{    [Header("Debug")]
+{    
+    [Header("Debug")]
     [SerializeField] private int debugDamage = 15;
     [SerializeField] private HealthSystem healthSystem;
 

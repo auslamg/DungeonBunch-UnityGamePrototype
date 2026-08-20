@@ -27,6 +27,7 @@ public class HealthSystem : MonoBehaviour
         }
         else
         {
+            Debug.Log("El enemigo tiene " + currentHealth + " de vida");
             currentHealth -= damageAmount;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
@@ -35,7 +36,19 @@ public class HealthSystem : MonoBehaviour
 
     }
 
-    private void Die()
+    public void Heal(int healAmount)
+    {
+        currentHealth += healAmount;
+        if(currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
+
+        OnChangeHealth?.Invoke(currentHealth, maxHealth);
+        Debug.Log("El jugador se ha curado " + healAmount + " y tiene " + currentHealth + " de vida");
+    }
+
+    public void Die()
     {
         Debug.Log("El enemigo ha muerto");
     }

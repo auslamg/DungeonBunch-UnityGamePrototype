@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed2ce85669408a2459440f38c2449d2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopEntity
-  guidPreview: 4ab3-f96b-ca0b-1d24-ea61-42dc-70a7-710b
+  guidPreview: 1962-6309-9347-3384-6b13-1a10-1ab6-397a
 --- !u!114 &1919420762329744464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,6 +270,8 @@ MonoBehaviour:
   rb: {fileID: 514698509232644875}
   actionManager: {fileID: 7070741940493287986}
   meleeBlock: {fileID: 2213985512359277441}
+  healthSystem: {fileID: 0}
+  debugDamage: 15
 --- !u!1 &8630577926261717697
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,6 +571,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActionManager
   isBusy: 0
+  crosshair: {fileID: 0}
+  baseCrosshair: {fileID: 0}
 --- !u!114 &9043089700728981369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -607,9 +611,7 @@ MonoBehaviour:
   orientation: {fileID: 8919195845961697211}
   cooldownSlider: {fileID: 0}
   t1: {fileID: 0}
-  crosshair: {fileID: 0}
-  atkCrosshair: {fileID: 21300000, guid: 404aaa018cc1bbe4fa0aaf8329142f67, type: 3}
-  baseCrosshair: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  actionCrosshair: {fileID: 0}
 --- !u!114 &2213985512359277441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -641,6 +643,4 @@ MonoBehaviour:
   orientation: {fileID: 8919195845961697211}
   cooldownSlider: {fileID: 0}
   t1: {fileID: 0}
-  crosshair: {fileID: 0}
-  blockCrosshair: {fileID: 21300000, guid: cab54b4049746814f8ab691bc390b86f, type: 3}
-  baseCrosshair: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  actionCrosshair: {fileID: 0}

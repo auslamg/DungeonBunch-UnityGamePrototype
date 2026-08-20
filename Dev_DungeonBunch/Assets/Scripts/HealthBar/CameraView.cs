@@ -1,6 +1,6 @@
 using UnityEngine;
 /// <summary>
-/// El objeto apunta a la camara del jugador
+/// El objeto apunta al vector.forward de la camara del jugador
 /// </summary>
 public class CameraView : MonoBehaviour
 {

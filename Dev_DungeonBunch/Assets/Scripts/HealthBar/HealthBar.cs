@@ -14,18 +14,16 @@ public class HealthBar : MonoBehaviour
 
     [Header("Health System")]
     [SerializeField] private HealthSystem HealthSystem;
-
     void OnEnable()
     {
-        if(HealthSystem != null)
+        if (HealthSystem != null) // Suscribimos el evento
         {
             HealthSystem.OnChangeHealth += HealthSystem_OnHealthChanged;
-        }        
+        }
     }
-
     void OnDisable()
     {
-        if(HealthSystem != null)
+        if(HealthSystem != null) //Desuscribimos el evento
         {
             HealthSystem.OnChangeHealth -= HealthSystem_OnHealthChanged;
         }  

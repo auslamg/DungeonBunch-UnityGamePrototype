@@ -20,7 +20,7 @@ public class AttackReceiver : MonoBehaviour
     [SerializeField] private HealthSystem healthSystem;
 
     [Header("DebugDamage")]
-    [SerializeField] int debugDamage = 15;
+    [SerializeField] int damage = 15;
 
     void OnValidate()
     {
@@ -39,7 +39,11 @@ public class AttackReceiver : MonoBehaviour
             meleeBlock = GetComponentInParent<Actor>().GetComponentInChildren<MeleeBlock>();
         }
 
-        TryGetComponent(out healthSystem);
+        //TryGetComponent(out healthSystem);
+        if (healthSystem == null)
+        {
+            healthSystem = GetComponentInParent<HealthSystem>();
+        }
     }
 
     /// <summary>
@@ -67,10 +71,11 @@ public class AttackReceiver : MonoBehaviour
 
     private void ApplyAttack(Attack attack)
     {
-        if(healthSystem != null && Input.GetKeyDown(KeyCode.B))
+        if(healthSystem)
         {
-            healthSystem.GetDamage(debugDamage);
-            Debug.Log(debugDamage);
+            healthSystem.GetDamage(damage);
+            Debug.Log("El enemigo ha recibido " + damage + " de daño");
+            
         }  
     }
 
