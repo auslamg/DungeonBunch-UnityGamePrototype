@@ -10,15 +10,38 @@ public class CharacterController : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float maxVelocity = 7.5f;
-    private float CurrentMaxVelocity => !isCrouching ?
-        maxVelocity : isGrounded ?
-            maxVelocity * crouchSpeedMultiplier :
-            maxVelocity;
+    private float CurrentMaxVelocity
+    {
+        get
+        {
+            var result = maxVelocity;
+            if (isCrouching)
+            {
+                result *= crouchSpeedMultiplier;
+            }
+            return result;
+        }
+    }
+
     [SerializeField] private float accelerationMultiplier = 1f;
-    private float CurrentAcceleration => !isCrouching ?
-        accelerationMultiplier : isGrounded ?
-            accelerationMultiplier * crouchSpeedMultiplier :
-            accelerationMultiplier;
+    private float CurrentAcceleration
+    {
+        get
+        {
+            var result = accelerationMultiplier;
+            if (isCrouching)
+            {
+                result *= crouchSpeedMultiplier;
+            }
+            if (!isGrounded)
+            {
+                result *= airborneAccelerationMultiplier;
+            }
+            return result;
+        }
+    }
+
+    [SerializeField] private float airborneAccelerationMultiplier = 0.25f;
 
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 2f;
